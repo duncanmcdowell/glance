@@ -1,0 +1,44 @@
+@import url('https://fonts.googleapis.com/css?family=Barlow');
+
+.border-radius(@radius) {
+  -webkit-border-radius: @radius;
+     -moz-border-radius: @radius;
+          border-radius: @radius;
+}
+
+H1 {
+  font-size: 72px;
+}
+
+.App {
+  text-align: center;
+}
+
+.Header {
+  height: 30px;
+}
+
+.KeyStats {
+  background-color: @primary-color;
+  .ant-card {
+    background-color: @secondary-color;
+    .ant-card-head {
+      .ant-card-head-title {
+        color: @body-background;
+      }
+      border-color: darken(@secondary-color, 10%);
+      background-color: @secondary-color;
+    }
+    &.ant-card-bordered {
+      border: none;
+      .border-radius(7px)
+    }
+  }
+
+  // The following should not be necessary, but the gutter technique antd is using
+  // leaves whitespace at the end of the row.
+  .ant-row > div:first-of-type, .ant-row > div:last-of-type {
+    padding-right: 7px;
+    padding-left: 7px;
+  }
+}

@@ -31,6 +31,38 @@ class Api {
     return this.ethCall("eth_getBlockByNumber", ['latest', false], 'number');
   }
 
+  static getHistoricalEthPrice() {
+    return axios.get('https://poloniex.com/public', {
+      params: {
+        command:'returnChartData',
+        currencyPair: 'USDT_ETH',
+        start: 1511281600,
+        end: 9999999999,
+        period: 14400
+      }
+    })
+      .then(function (response) {
+        return response.data;
+      })
+      .catch(function (error) {
+        return error
+      });
+  }
+
+  static getCurrentEthPrice() {
+    return axios.get('https://poloniex.com/public', {
+      params: {
+        command:'returnTicker'
+      }
+    })
+      .then(function (response) {
+        return response.data;
+      })
+      .catch(function (error) {
+        return error
+      });
+  }
+
   static getUncomfirmedTransactions() {
     return axios.get('https://api.blockcypher.com/v1/eth/main')
       .then(function (response) {

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import {Card, Row, Col} from 'antd';
 import loadingIcon from '../loading.svg';
 import Api from '../Api';
-import '../App.css';
+import '../App.less';
 
 class KeyStats extends Component {
   constructor(props) {
@@ -29,62 +29,63 @@ class KeyStats extends Component {
       vm.setState({gasPrice: {'value':result / 1000000000, 'loading': false}});
     });
 
-    const blockInterval = setInterval(function(){
+    const getLatestBlock = function() {
       vm.setState({latestBlock: {'loading': true}});
       Api.getLastBlock().then(function(result) {
         vm.setState({latestBlock: {'value':result, 'loading': false}});
       });
-    },10000);
+    }
+    getLatestBlock();
+    // const blockInterval = setInterval(getLatestBlock, 10000);
 
-    Api.getUncomfirmedTransactions().then(function(result) {
-      vm.setState({uncomfirmedTransactions: {'value':result, 'loading': false}});
-    });
+    const getUncomfirmedTransactions = function() {
+      vm.setState({uncomfirmedTransactions: {'loading': true}});
+      Api.getUncomfirmedTransactions().then(function(result) {
+        vm.setState({uncomfirmedTransactions: {'value':result, 'loading': false}});
+      });
+    }
+    getUncomfirmedTransactions();
+    // const uncomfirmedTransactionsInterval = setInterval(getUncomfirmedTransactions, 20000);
+
   }
   render() {
     return (
       <div className="KeyStats">
-        <div className="gutter-example">
-          <Row gutter={16}>
-            <Col className="gutter-row" span={6}>
-              <div className="gutter-box">
-                <Card title="Gas Price">
-                  {this.state.gasPrice.loading ? (
-                    <img width="30px" src={loadingIcon} alt="loading..." />
-                  ) : (
-                    <span>{this.state.gasPrice.value}</span>
-                  )}
-                </Card>
-              </div>
-            </Col>
-            <Col className="gutter-row" span={6}>
-              <div className="gutter-box">
-                <Card title="Latest Block">
-                  {this.state.latestBlock.loading ? (
-                    <img width="30px" src={loadingIcon} alt="loading..." />
-                  ) : (
-                    <span>{this.state.latestBlock.value}</span>
-                  )}
-                </Card>
-              </div>
-            </Col>
-            <Col className="gutter-row" span={6}>
-              <div className="gutter-box">
-                <Card title="Uncomfirmed Txs">
-                  {this.state.uncomfirmedTransactions.loading ? (
-                    <img width="30px" src={loadingIcon} alt="loading..." />
-                  ) : (
-                    <span>{this.state.uncomfirmedTransactions.value}</span>
-                  )}
-                </Card>
-              </div>
-            </Col>
-            <Col className="gutter-row" span={6}>
-              <div className="gutter-box">
-                <Card title="Card title">Card content</Card>
-              </div>
-            </Col>
-          </Row>
-        </div>
+        <Row>
+          <Col span={8}>
+            <div>
+              <Card title="Gas Price">
+                {this.state.gasPrice.loading ? (
+                  <img width="30px" src={loadingIcon} alt="loading..." />
+                ) : (
+                  <span>{this.state.gasPrice.value}</span>
+                )}
+              </Card>
+            </div>
+          </Col>
+          <Col span={8}>
+            <div>
+              <Card title="Latest Block">
+                {this.state.latestBlock.loading ? (
+                  <img width="30px" src={loadingIcon} alt="loading..." />
+                ) : (
+                  <span>{this.state.latestBlock.value}</span>
+                )}
+              </Card>
+            </div>
+          </Col>
+          <Col span={8}>
+            <div>
+              <Card title="Uncomfirmed Txs">
+                {this.state.uncomfirmedTransactions.loading ? (
+                  <img width="30px" src={loadingIcon} alt="loading..." />
+                ) : (
+                  <span>{this.state.uncomfirmedTransactions.value}</span>
+                )}
+              </Card>
+            </div>
+          </Col>
+        </Row>
       </div>
     );
   }
