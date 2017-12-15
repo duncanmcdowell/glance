@@ -16,6 +16,45 @@ H1 {
 
 .Header {
   height: 30px;
+  text-align: left;
+  padding: 20px 10px;
+  .wordmark {
+    // font-weight: bold;
+    font-size: 1.1em;
+    padding-right: 15px;
+  }
+  .link {
+    padding-right: 10px;
+  }
+}
+
+.Hero {
+  margin-top: 100px;
+  text-align: left;
+  h2 {
+    color: lighten(@text-color, 20%);
+    span {
+      font-weight: bold;
+      font-size: 1.1em;
+      color: @text-color;
+    }
+  }
+}
+
+.PriceChart {
+  .currentPrice {
+    margin-bottom: -200px;
+    text-align: left;
+    h1 {
+      margin-bottom: -20px;
+      span {
+        font-size: 0.4em;
+      }
+    }
+    p {
+      color: lighten(@text-color, 40%);
+    }
+  }
 }
 
 .KeyStats {
