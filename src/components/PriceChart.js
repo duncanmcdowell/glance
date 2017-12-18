@@ -81,6 +81,7 @@ class PriceChart extends Component {
         if (chart.data.datasets && chart.data.datasets[0] && parsedChartData) {
           parsedChartData.forEach(function(datapoint, index) {
             if (datapoint.newsItem) {
+              console.log('news item exists, it should render now;');
               let point = chart.getDatasetMeta(0).data[index];
               point.custom = point.custom || {};
               point.custom.radius = 15;
@@ -105,7 +106,7 @@ class PriceChart extends Component {
     }
     // Current Price data
     getCurrentEthPrice();
-    ethPriceInterval = setInterval(getCurrentEthPrice, 5000);
+    ethPriceInterval = setInterval(getCurrentEthPrice, 60000);
 
     // Chart Data
     Api.getHistoricalEthPrice().then(function(result){
@@ -165,10 +166,10 @@ class PriceChart extends Component {
 
         })
       }
-      console.log(parsedChartData)
     });
   }
   render() {
+      //<Input placeholder="Basic usage" value={this.state.input} onChange={this.handleChange} />
       if (this.state.parsedChartData) {
         return (
           <div className="PriceChart">
@@ -177,7 +178,6 @@ class PriceChart extends Component {
                 <div>
                   <h1><span className={this.state.refreshCurrentPrice ? '' : 'animated fadeIn'}>{this.state.currentPrice}</span> <span> ETH/USD </span></h1>
                   <p>price updates every five seconds.</p>
-                  <Input placeholder="Basic usage" value={this.state.input} onChange={this.handleChange} />
                 </div>
               </Col>
             </Row>

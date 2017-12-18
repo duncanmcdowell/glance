@@ -52,8 +52,8 @@ class KeyStats extends Component {
         vm.setState({'gasPrice' :latestState});
       });
     }
-    getGasPrice();
-    setInterval(getGasPrice, 10000);
+    // getGasPrice();
+    // setInterval(getGasPrice, 10000);
 
     const getLatestBlock = function() {
       let latestState = update(vm.state.latestBlock, {refresh: {$set: false}});
@@ -67,8 +67,8 @@ class KeyStats extends Component {
         vm.setState({'latestBlock' :latestState});
       });
     }
-    getLatestBlock();
-    setInterval(getLatestBlock, 10000);
+    // getLatestBlock();
+    // setInterval(getLatestBlock, 10000);
 
     const getUncomfirmedTransactions = function() {
       let latestState = update(vm.state.uncomfirmedTransactions, {refresh: {$set: false}});
