@@ -67,16 +67,25 @@ class PriceChart extends Component {
     this.setState({input: event.target.value});
   }
 
+  formatTooltip(tooltip, chart) {
+    if (parsedChartData[tooltip[0].index] && parsedChartData[tooltip[0].index].newsItem) {
+      return parsedChartData[tooltip[0].index].newsItem.title
+    }
+  }
+
   componentWillMount() {
   	Chart.pluginService.register({
   		afterDraw: function (chart, easing) {
-  			// Plugin code.
         // data.datasets[datasetIndex]
         // https://github.com/chartjs/Chart.js/issues/3245
-        if (chart.data.datasets && chart.data.datasets[0]) {
-          let point = chart.getDatasetMeta(0).data[50];
-          point.custom = point.custom || {};
-          point.custom.radius = 20;
+        if (chart.data.datasets && chart.data.datasets[0] && parsedChartData) {
+          parsedChartData.forEach(function(datapoint, index) {
+            if (datapoint.newsItem) {
+              let point = chart.getDatasetMeta(0).data[index];
+              point.custom = point.custom || {};
+              point.custom.radius = 15;
+            }
+          })
         }
   		}
   	});
@@ -98,28 +107,12 @@ class PriceChart extends Component {
     getCurrentEthPrice();
     ethPriceInterval = setInterval(getCurrentEthPrice, 5000);
 
-    //News items
-    // Api.getNewsItems().then(function (result) {
-    //   console.log(result);
-    // });
-
     // Chart Data
     Api.getHistoricalEthPrice().then(function(result){
-      // let historical
       result.forEach(function(day) {
         var then = moment.unix(day.date);
         parsedChartData.push({'date':then.format('MMMM D'), 'value':day.open})
       });
-      //News items
-      // Api.getNewsItems().then(function (result) {
-      //   if (result && result.posts.length) {
-      //     // map out the posts that are on the same day
-      //     let filteredPosts = result.posts.map(function(post) {
-      //
-      //     })
-      //   }
-      //
-      // });
       vm.setState({parsedChartData: parsedChartData});
       vm.setState({chartParameters: {
         labels: parsedChartData.map(function(datapoint) {
@@ -156,6 +149,24 @@ class PriceChart extends Component {
         ]
       }});
     });
+    Api.getNewsItems().then(function (result) {
+      if (result && result.posts.length) {
+        // map out the posts that are on the same day
+        result.posts.forEach(function(post) {
+          // find the first date that matches
+          let itemIndex = parsedChartData.findIndex(function(datapoint) {
+            if (moment(datapoint.date).isSame(moment(post.published).format('MMMM D'))) {
+              return datapoint;
+            }
+          });
+          if (itemIndex != -1) {
+            parsedChartData[itemIndex]['newsItem'] = post;
+          }
+
+        })
+      }
+      console.log(parsedChartData)
+    });
   }
   render() {
       if (this.state.parsedChartData) {
@@ -177,9 +188,7 @@ class PriceChart extends Component {
                   options = {{
                     tooltips: {
                       callbacks: {
-                        afterBody: function(doot, chart){
-                          return '<a href="http://cattalo.com">doggalo</a>';
-                        }
+                        afterBody: this.formatTooltip
                       }
                     },
                     onClick: function(event, arr) {
