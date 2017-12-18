@@ -6,9 +6,33 @@
           border-radius: @radius;
 }
 
+.animated {
+  -webkit-animation-duration: 2s;
+  animation-duration: 2s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+@-webkit-keyframes fadeIn {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
+}
+
+@keyframes fadeIn {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
+}
+
+.fadeIn {
+  -webkit-animation-name: fadeIn;
+  animation-name: fadeIn;
+}
+
 H1 {
   font-size: 72px;
 }
+
+// body{ margin:0 auto; max-width: 900px; }
 
 .App {
   text-align: center;
@@ -19,7 +43,7 @@ H1 {
   text-align: left;
   padding: 20px 10px;
   .wordmark {
-    // font-weight: bold;
+
     font-size: 1.1em;
     padding-right: 15px;
   }
@@ -42,12 +66,16 @@ H1 {
 }
 
 .PriceChart {
-  .currentPrice {
+  .current-price {
+    // since we're "dropping" this into the chart space, we need to ensure the z-index
+    // is increased so that it will pop over the chart in the event that the two
+    // spaces  collide.
+    z-index: 9999;
     margin-bottom: -200px;
     text-align: left;
     h1 {
       margin-bottom: -20px;
-      span {
+      span:last-of-type {
         font-size: 0.4em;
       }
     }
@@ -58,19 +86,34 @@ H1 {
 }
 
 .KeyStats {
-  background-color: @primary-color;
+  background: -moz-linear-gradient(277deg, rgba(68,168,215,1) 5%, rgba(68,168,215,1) 38%, rgba(107,69,209,1) 84%, rgba(107,69,209,1) 100%); /* ff3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(5%, rgba(68,168,215,1)), color-stop(38%, rgba(68,168,215,1)), color-stop(84%, rgba(107,69,209,1)), color-stop(100%, rgba(107,69,209,1))); /* safari4+,chrome */
+  background: -webkit-linear-gradient(277deg, rgba(68,168,215,1) 5%, rgba(68,168,215,1) 38%, rgba(107,69,209,1) 84%, rgba(107,69,209,1) 100%); /* safari5.1+,chrome10+ */
+  background: -o-linear-gradient(277deg, rgba(68,168,215,1) 5%, rgba(68,168,215,1) 38%, rgba(107,69,209,1) 84%, rgba(107,69,209,1) 100%); /* opera 11.10+ */
+  background: -ms-linear-gradient(277deg, rgba(68,168,215,1) 5%, rgba(68,168,215,1) 38%, rgba(107,69,209,1) 84%, rgba(107,69,209,1) 100%); /* ie10+ */
+  background: linear-gradient(173deg, rgba(68,168,215,1) 5%, rgba(68,168,215,1) 38%, rgba(107,69,209,1) 84%, rgba(107,69,209,1) 100%); /* w3c */
+  filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#44a8d7', endColorstr='#6b45d1',GradientType=0 ); /* ie6-9 */
+  padding-bottom: 25px;
   .ant-card {
-    background-color: @secondary-color;
+    background-color: transparent;
     .ant-card-head {
       .ant-card-head-title {
         color: @body-background;
       }
-      border-color: darken(@secondary-color, 10%);
-      background-color: @secondary-color;
+      border-color: darken(@primary-color, 10%);
+      background-color: transparent;
     }
     &.ant-card-bordered {
       border: none;
       .border-radius(7px)
+    }
+    .stats {
+      // color: @body-background;
+      font-size: 1.8em;
+    }
+    .health-bar {
+      height: 8px;
+      margin: 8px 30px 0px;
     }
   }
 
@@ -79,5 +122,14 @@ H1 {
   .ant-row > div:first-of-type, .ant-row > div:last-of-type {
     padding-right: 7px;
     padding-left: 7px;
+  }
+}
+
+.Details {
+  text-align: left;
+  background-color: whitesmoke;
+  color: lighten(@text-color, 20%);
+  h2 {
+    margin-top: 30px;
   }
 }

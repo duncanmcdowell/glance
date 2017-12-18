@@ -19,7 +19,7 @@ class Api {
         return parseInt(respKey, 16);
       })
       .catch(function (error) {
-        return error;
+        return {'error': error};
       });
   }
 
@@ -29,6 +29,13 @@ class Api {
 
   static getLastBlock() {
     return this.ethCall("eth_getBlockByNumber", ['latest', false], 'number');
+  }
+
+  static getBalance(address) {
+    if (address.length == 40) {
+      address = '0x' + address;
+    }
+    return this.ethCall("eth_getBalance", [address]);
   }
 
   static getHistoricalEthPrice() {
@@ -72,6 +79,17 @@ class Api {
         return error
       });
   }
+
+  static getNewsItems() {
+    return axios.get('http://webhose.io/filterWebContent?token=8b783afd-c348-436d-8913-1e1450d86f00&format=json&ts=1511830330016&sort=crawled&q=ethereum%20social.facebook.shares%3A%3E5000')
+      .then(function (response) {
+        return response.data;
+      })
+      .catch(function (error) {
+        return {'error':error};
+      });
+  }
+
 
 }
 

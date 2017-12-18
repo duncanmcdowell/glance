@@ -3,6 +3,7 @@ import Header from './components/Header';
 import Hero from './components/Hero';
 import PriceChart from './components/PriceChart';
 import KeyStats from './components/KeyStats';
+import Details from './components/Details';
 import './App.less';
 
 class App extends Component {
@@ -20,6 +21,7 @@ class App extends Component {
         <Hero />
         <PriceChart />
         <KeyStats />
+        <Details />
       </div>
     );
   }

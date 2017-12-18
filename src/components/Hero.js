@@ -14,7 +14,7 @@ class Hero extends Component {
     return (
       <Row>
         <Col className="Hero" span={11} offset={4}>
-          <h2><span>Glance</span> is a quick proof of concept to display real-time statistics from the Ethereum blockchain.</h2>
+          <h2><span>Glance</span> displays real-time statistics from the Ethereum blockchain driven by multiple APIs.</h2>
         </Col>
       </Row>
     );
