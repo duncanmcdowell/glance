@@ -1,0 +1,11 @@
+{
+  "name": "glance-api",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "latest",
+    "cors": "latest",
+    "express": "latest",
+    "mongoose": "latest",
+    "ws": "^3.3.3"
+  }
+}

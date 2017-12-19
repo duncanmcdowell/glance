@@ -6,6 +6,11 @@ import KeyStats from './components/KeyStats';
 import Details from './components/Details';
 import './App.less';
 
+var ws = new WebSocket('ws://localhost:9999');
+ws.onmessage = function (event) {
+  console.log(event.data);
+};
+
 class App extends Component {
   constructor(props) {
     super(props);

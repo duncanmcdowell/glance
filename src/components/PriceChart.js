@@ -110,14 +110,11 @@ class PriceChart extends Component {
 
     // Chart Data
     Api.getHistoricalEthPrice().then(function(result){
-      result.forEach(function(day) {
-        var then = moment.unix(day.date);
-        parsedChartData.push({'date':then.format('MMMM D'), 'value':day.open})
-      });
+      let parsedChartData = result;
       vm.setState({parsedChartData: parsedChartData});
       vm.setState({chartParameters: {
         labels: parsedChartData.map(function(datapoint) {
-          return datapoint.date;
+          return datapoint.formattedDate;
         }),
         datasets: [
           {
@@ -144,7 +141,7 @@ class PriceChart extends Component {
               'display': false
             },
             data: parsedChartData.map(function(datapoint) {
-              return datapoint.value.toFixed(2);
+              return datapoint.price.toFixed(2);
             }),
           }
         ]
@@ -165,6 +162,7 @@ class PriceChart extends Component {
           }
 
         })
+        console.log(parsedChartData);
       }
     });
   }

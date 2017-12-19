@@ -39,16 +39,9 @@ class Api {
   }
 
   static getHistoricalEthPrice() {
-    return axios.get('https://poloniex.com/public', {
-      params: {
-        command:'returnChartData',
-        currencyPair: 'USDT_ETH',
-        start: 1511281600,
-        end: 9999999999,
-        period: 14400
-      }
-    })
+    return axios.get('http://localhost:8080/api/historical')
       .then(function (response) {
+        console.log(response);
         return response.data;
       })
       .catch(function (error) {
@@ -89,7 +82,6 @@ class Api {
         return {'error':error};
       });
   }
-
 
 }
 
