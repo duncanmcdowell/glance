@@ -2,9 +2,7 @@ import React, { Component } from 'react';
 import '../App.less';
 import Api from '../Api';
 import {Row, Col, Input} from 'antd';
-import {keccak256 as sha3} from 'js-sha3';
 import {Chart, Line} from 'react-chartjs-2';
-import moment from 'moment';
 
 let parsedChartData = [];
 let ethPriceInterval = null;
@@ -109,7 +107,7 @@ class PriceChart extends Component {
             <Row>
               <Col className="current-price" span={16} offset={4}>
                 <div>
-                  <h1><span className={this.state.refreshCurrentPrice ? '' : 'animated fadeIn'}>{this.props.testProp}</span> <span> ETH/USD </span></h1>
+                  <h1><span className={this.state.refreshCurrentPrice ? '' : 'animated fadeIn'}>{this.props.currentPrice}</span> <span> ETH/USD </span></h1>
                   <p>price updates every five seconds.</p>
                 </div>
               </Col>

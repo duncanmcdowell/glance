@@ -4,15 +4,6 @@ import {Card, Row, Col} from 'antd';
 import Api from '../Api';
 import '../App.less';
 
-const determineHealth = function(value, low, middle) {
-  if (value < low) {
-    return {'status':'healthy', 'value':'#73d13d'};
-  } else if (value > low && value < middle) {
-    return {'status':'moderately healthy', 'value':'#fff566'};
-  } else {
-    return {'status':'unhealthy', 'value':'#ff4d4f'};
-  }
-}
 
 class KeyStats extends Component {
   constructor(props) {
@@ -37,21 +28,21 @@ class KeyStats extends Component {
   }
   componentDidMount() {
     const vm = this;
-    const getGasPrice = function() {
-      let latestState = update(vm.state.gasPrice, {refresh: {$set: false}});
-      vm.setState({'gasPrice' :latestState});
-      Api.gasPrice().then(function(result) {
-        // convert wei to gwei
-        let gwei = result / 1000000000;
-        if (vm.state.gasPrice.value !== gwei) {
-          latestState = update(vm.state.gasPrice, {refresh: {$set: true}});
-          vm.setState({'gasPrice' :latestState});
-        }
-        let health = determineHealth(gwei, 28, 60);
-        latestState = update(vm.state.gasPrice, {value: {$set: gwei}, health: {$set: health}});
-        vm.setState({'gasPrice' :latestState});
-      });
-    }
+    // const getGasPrice = function() {
+    //   let latestState = update(vm.state.gasPrice, {refresh: {$set: false}});
+    //   vm.setState({'gasPrice' :latestState});
+    //   Api.gasPrice().then(function(result) {
+    //     // convert wei to gwei
+    //     let gwei = result / 1000000000;
+    //     if (vm.state.gasPrice.value !== gwei) {
+    //       latestState = update(vm.state.gasPrice, {refresh: {$set: true}});
+    //       vm.setState({'gasPrice' :latestState});
+    //     }
+    //     let health = determineHealth(gwei, 28, 60);
+    //     latestState = update(vm.state.gasPrice, {value: {$set: gwei}, health: {$set: health}});
+    //     vm.setState({'gasPrice' :latestState});
+    //   });
+    // }
     // getGasPrice();
     // setInterval(getGasPrice, 10000);
 
@@ -94,7 +85,7 @@ class KeyStats extends Component {
           <Col span={8}>
             <div>
               <Card title="Gas Price">
-                <span className={"stats " + (this.state.gasPrice.refresh ? 'animated fadeIn' : '')}>{this.state.gasPrice.value}</span>
+                <span className={"stats " + (this.state.gasPrice.refresh ? 'animated fadeIn' : '')}>{this.props.gasPrice}</span>
                 <div className="health-bar" style={{background: this.state.gasPrice.health.value}} title={this.state.gasPrice.health.status}> </div>
               </Card>
             </div>

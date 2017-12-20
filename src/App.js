@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import Api from './Api';
 import Header from './components/Header';
 import Hero from './components/Hero';
 import PriceChart from './components/PriceChart';
@@ -12,38 +11,34 @@ class App extends Component {
     super(props);
 
     this.state = {
-      currentPrice: ''
+      currentPrice: '',
+      gasPrice: ''
     };
   }
 
   componentDidMount() {
-    let currentPrice = 0;
     let vm = this;
     let ws = new WebSocket('ws://localhost:9090');
     ws.onmessage = function (event) {
       let data = JSON.parse(event.data)
       if (data.currentPrice) {
-        currentPrice = data.currentPrice;
-        console.log(data.currentPrice)
+        let currentPrice = data.currentPrice;
         vm.setState({currentPrice});
-        // PriceChart.updatePrice(data.currentPrice)
-        // console.log(PriceChart());
-        // console.log('do something');
-        // PriceChart.setState({currentPrice: data.currentPrice});
-        // vm.state.currentPrice = data.currentPrice;
-        // vm.setState({currentPrice: data.currentPrice});
+      }
+      if (data.gasPrice) {
+        let gasPrice = data.gasPrice;
+        vm.setState({gasPrice});
       }
     };
   }
 
   render() {
-    let currentPrice = ''
     return (
       <div className="App">
         <Header />
         <Hero />
-        <PriceChart testProp={this.state.currentPrice} />
-        <KeyStats />
+        <PriceChart currentPrice={this.state.currentPrice} />
+        <KeyStats gasPrice={this.state.gasPrice}  />
         <Details />
       </div>
     );

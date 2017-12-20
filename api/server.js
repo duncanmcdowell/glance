@@ -19,7 +19,6 @@ var router = express.Router();
 // Sockets
 
 const wss = new WebSocket.Server({ port: 9090 });
-console.log(wss);
 
 wss.on('connection', function connection(ws) {
   ws.on('message', function incoming(message) {
@@ -33,6 +32,9 @@ wss.on('connection', function connection(ws) {
         ws.send(JSON.stringify({currentPrice: result}));
       }
     });
+    getGasPrice().then(function(result) {
+      ws.send(JSON.stringify({gasPrice: result}));
+    })
   },1000)
 
   // setInterval(function() {
@@ -47,6 +49,8 @@ wss.on('connection', function connection(ws) {
 });
 
 // Third-party API functions
+
+let parityEndpoint = "https://wallet.parity.io:8545"
 
 getHistoricalPrice = function() {
   return axios.get('https://poloniex.com/public', {
@@ -91,6 +95,18 @@ getCurrentEthPrice = function() {
     .catch(function (error) {
       return error
     });
+}
+
+getGasPrice = async function() {
+  let response = await axios.post(parityEndpoint, {"method":"eth_gasPrice","params":[],"id":1,"jsonrpc":"2.0"})
+  let result = await response;
+  if (result.data) {
+    parsedHex = parseInt(result.data.result, 16);
+    return parsedHex / 1000000000 // convert wei to gwei
+  } else {
+    // TODO test err
+    throw err;
+  }
 }
 
 // Schema
