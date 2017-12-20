@@ -6,8 +6,9 @@ import {keccak256 as sha3} from 'js-sha3';
 import {Chart, Line} from 'react-chartjs-2';
 import moment from 'moment';
 
-var parsedChartData = [];
-var ethPriceInterval = null;
+let parsedChartData = [];
+let ethPriceInterval = null;
+let indicies = [];
 
 class PriceChart extends Component {
   constructor(props) {
@@ -20,51 +21,6 @@ class PriceChart extends Component {
       input: '',
       ethBalance: ''
     };
-    this.handleChange = this.handleChange.bind(this);
-  }
-
-  isAddress = function (address) {
-    if (!/^(0x)?[0-9a-f]{40}$/i.test(address)) {
-        // check if it has the basic requirements of an address
-        return false;
-    } else if (/^(0x)?[0-9a-f]{40}$/.test(address) || /^(0x)?[0-9A-F]{40}$/.test(address)) {
-        // If it's all small caps or all all caps, return true
-        return true;
-    } else {
-        // Otherwise check each case
-        return this.isChecksumAddress(address);
-    }
-  };
-
-  isChecksumAddress = function (address) {
-    // Check each case
-    address = address.replace('0x','');
-    var addressHash = sha3(address.toLowerCase());
-    for (var i = 0; i < 40; i++ ) {
-        // the nth letter should be uppercase if the nth digit of casemap is 1
-        if ((parseInt(addressHash[i], 16) > 7 && address[i].toUpperCase() !== address[i]) || (parseInt(addressHash[i], 16) <= 7 && address[i].toLowerCase() !== address[i])) {
-            return false;
-        }
-    }
-    return true;
-  };
-
-  handleChange(event) {
-    var vm = this;
-    if (this.isAddress(event.target.value)) {
-      let address = event.target.value;
-      let tempData = this.state.parsedChartData.map(function(datapoint) {
-        return datapoint.value.toFixed(2) * 2
-      })
-      Api.getBalance(address).then(function(result) {
-        let balance = result / 10e17;
-        let currentPrice = vm.state.currentPrice * balance;
-        clearInterval(ethPriceInterval);
-        vm.setState({balance, currentPrice});
-      })
-      this.setState({parsedChartData: tempData});
-    }
-    this.setState({input: event.target.value});
   }
 
   formatTooltip(tooltip, chart) {
@@ -74,43 +30,37 @@ class PriceChart extends Component {
   }
 
   componentWillMount() {
+    var vm = this;
   	Chart.pluginService.register({
-  		afterDraw: function (chart, easing) {
-        // data.datasets[datasetIndex]
+  		afterDatasetDraw: function (chart) {
         // https://github.com/chartjs/Chart.js/issues/3245
-        if (chart.data.datasets && chart.data.datasets[0] && parsedChartData) {
-          parsedChartData.forEach(function(datapoint, index) {
-            if (datapoint.newsItem) {
-              console.log('news item exists, it should render now;');
+          if (indicies.length) {
+            indicies.forEach(function(index) {
               let point = chart.getDatasetMeta(0).data[index];
               point.custom = point.custom || {};
-              point.custom.radius = 15;
-            }
-          })
+              point.custom.radius = 12;
+              // point.custom.hitRadius = 30  ;
+            });
+          }
         }
-  		}
   	});
   }
 
   componentDidMount() {
     var vm = this;
-    var getCurrentEthPrice = function(){
-      vm.setState({refreshCurrentPrice : true});
-      Api.getCurrentEthPrice().then(function(result){
-        var currentPrice = parseInt(result['USDT_ETH'].last,10)
-        if (currentPrice.toFixed(2) !== vm.state.currentPrice) {
-          vm.setState({refreshCurrentPrice : false});
-        }
-        vm.setState({currentPrice: currentPrice.toFixed(2)});
-      });
-    }
-    // Current Price data
-    getCurrentEthPrice();
-    ethPriceInterval = setInterval(getCurrentEthPrice, 60000);
 
     // Chart Data
     Api.getHistoricalEthPrice().then(function(result){
       let parsedChartData = result;
+      // build annotation layer
+      indicies = parsedChartData.map(function(dataPoint, index) {
+        if (dataPoint.newsItem) {
+          return index;
+        }
+      }).filter(function(x) {
+        return typeof x !== 'undefined';
+      });
+
       vm.setState({parsedChartData: parsedChartData});
       vm.setState({chartParameters: {
         labels: parsedChartData.map(function(datapoint) {
@@ -147,24 +97,6 @@ class PriceChart extends Component {
         ]
       }});
     });
-    Api.getNewsItems().then(function (result) {
-      if (result && result.posts.length) {
-        // map out the posts that are on the same day
-        result.posts.forEach(function(post) {
-          // find the first date that matches
-          let itemIndex = parsedChartData.findIndex(function(datapoint) {
-            if (moment(datapoint.date).isSame(moment(post.published).format('MMMM D'))) {
-              return datapoint;
-            }
-          });
-          if (itemIndex != -1) {
-            parsedChartData[itemIndex]['newsItem'] = post;
-          }
-
-        })
-        console.log(parsedChartData);
-      }
-    });
   }
   render() {
       //<Input placeholder="Basic usage" value={this.state.input} onChange={this.handleChange} />
@@ -174,7 +106,7 @@ class PriceChart extends Component {
             <Row>
               <Col className="current-price" span={16} offset={4}>
                 <div>
-                  <h1><span className={this.state.refreshCurrentPrice ? '' : 'animated fadeIn'}>{this.state.currentPrice}</span> <span> ETH/USD </span></h1>
+                  <h1><span className={this.state.refreshCurrentPrice ? '' : 'animated fadeIn'}>{this.props.testProp}</span> <span> ETH/USD </span></h1>
                   <p>price updates every five seconds.</p>
                 </div>
               </Col>
