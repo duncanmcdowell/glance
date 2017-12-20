@@ -39,6 +39,9 @@ class PriceChart extends Component {
               let point = chart.getDatasetMeta(0).data[index];
               point.custom = point.custom || {};
               point.custom.radius = 12;
+              // console.log(point);
+              // point.custom.hoverRadius = 20;
+              // point.custom.hitRadius = 30;
               // point.custom.hitRadius = 30  ;
             });
           }
@@ -51,7 +54,7 @@ class PriceChart extends Component {
 
     // Chart Data
     Api.getHistoricalEthPrice().then(function(result){
-      let parsedChartData = result;
+      parsedChartData = result;
       // build annotation layer
       indicies = parsedChartData.map(function(dataPoint, index) {
         if (dataPoint.newsItem) {
@@ -123,7 +126,10 @@ class PriceChart extends Component {
                     },
                     onClick: function(event, arr) {
                       console.log(arr);
-                      // window.open('https://reddit.com/r/aww', '_blank');
+                      let index = arr[0]['_index'];
+                      if (parsedChartData[index] && parsedChartData[index].newsItem) {
+                        window.open(parsedChartData[index].newsItem.url, '_blank');
+                      }
                     },
                     legend:false,
                     scales: {
