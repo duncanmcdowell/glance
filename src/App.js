@@ -4,6 +4,7 @@ import Hero from './components/Hero';
 import PriceChart from './components/PriceChart';
 import KeyStats from './components/KeyStats';
 import Details from './components/Details';
+import update from 'immutability-helper';
 import './App.less';
 
 class App extends Component {
@@ -12,7 +13,23 @@ class App extends Component {
 
     this.state = {
       currentPrice: '',
-      gasPrice: ''
+      keyStats: {
+        latestBlock: '',
+        gasDetails: {
+          price: '',
+          health: {
+            status: '',
+            value: ''
+          }
+        },
+        uncomfirmedTransactions: {
+          value: '',
+          health: {
+            status: '',
+            value: ''
+          }
+        }
+      },
     };
   }
 
@@ -25,9 +42,30 @@ class App extends Component {
         let currentPrice = data.currentPrice;
         vm.setState({currentPrice});
       }
-      if (data.gasPrice) {
-        let gasPrice = data.gasPrice;
-        vm.setState({gasPrice});
+      if (data.gasDetails) {
+        let gasDetails = data.gasDetails;
+        let currentState = update(vm.state.keyStats, {gasDetails:
+                                                       {
+                                                         price: {$set: gasDetails.price},
+                                                         health: {$set: gasDetails.health}
+                                                       }
+                                                     });
+        vm.setState({keyStats: currentState})
+      }
+      if (data.uncomfirmedTransactions) {
+        let uncomfirmedTransactions = data.uncomfirmedTransactions;
+        let currentState = update(vm.state.keyStats, {uncomfirmedTransactions:
+                                                       {
+                                                         value: {$set: uncomfirmedTransactions.value},
+                                                         health: {$set: uncomfirmedTransactions.health}
+                                                       }
+                                                     });
+        vm.setState({keyStats: currentState})
+      }
+      if (data.latestBlock) {
+        let latestBlock = data.latestBlock;
+        let currentState = update(vm.state.keyStats, {latestBlock: {$set: latestBlock}});
+        vm.setState({keyStats: currentState});
       }
     };
   }
@@ -38,7 +76,7 @@ class App extends Component {
         <Header />
         <Hero />
         <PriceChart currentPrice={this.state.currentPrice} />
-        <KeyStats gasPrice={this.state.gasPrice}  />
+        <KeyStats {...this.state.keyStats}  />
         <Details />
       </div>
     );

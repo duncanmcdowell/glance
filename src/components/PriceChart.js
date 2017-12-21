@@ -1,23 +1,17 @@
 import React, { Component } from 'react';
 import '../App.less';
 import Api from '../Api';
-import {Row, Col, Input} from 'antd';
+import {Row, Col} from 'antd';
 import {Chart, Line} from 'react-chartjs-2';
 
 let parsedChartData = [];
-let ethPriceInterval = null;
 let indicies = [];
 
 class PriceChart extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      parsedChartData: [],
-      chartParameters: {},
-      currentPrice: '',
-      refreshCurrentPrice: false,
-      input: '',
-      ethBalance: ''
+      chartParameters: {}
     };
   }
 
@@ -28,10 +22,11 @@ class PriceChart extends Component {
   }
 
   componentWillMount() {
-    var vm = this;
   	Chart.pluginService.register({
   		afterDatasetDraw: function (chart) {
-        // https://github.com/chartjs/Chart.js/issues/3245
+        // This is a custom plugin that connects to the afterDatasetDraw method exposed by chartJS.
+        // The key functionality in this plugin is to differentiate the datapoints on the line chart
+        // which have news items associated with them (captured by the indicies array)
           if (indicies.length) {
             indicies.forEach(function(index) {
               let point = chart.getDatasetMeta(0).data[index];
@@ -62,7 +57,7 @@ class PriceChart extends Component {
         return typeof x !== 'undefined';
       });
 
-      vm.setState({parsedChartData: parsedChartData});
+      // vm.setState({parsedChartData: parsedChartData});
       vm.setState({chartParameters: {
         labels: parsedChartData.map(function(datapoint) {
           return datapoint.formattedDate;
@@ -100,14 +95,13 @@ class PriceChart extends Component {
     });
   }
   render() {
-      //<Input placeholder="Basic usage" value={this.state.input} onChange={this.handleChange} />
-      if (this.state.parsedChartData) {
+      if (parsedChartData) {
         return (
           <div className="PriceChart">
             <Row>
               <Col className="current-price" span={16} offset={4}>
                 <div>
-                  <h1><span className={this.state.refreshCurrentPrice ? '' : 'animated fadeIn'}>{this.props.currentPrice}</span> <span> ETH/USD </span></h1>
+                  <h1><span className="animated fadeIn">{this.props.currentPrice}</span> <span> ETH/USD </span></h1>
                   <p>price updates every five seconds.</p>
                 </div>
               </Col>

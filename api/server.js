@@ -8,6 +8,7 @@ var cors       = require('cors')
 var WebSocket  = require('ws');
 const http     = require('http');
 mongoose.connect('mongodb://glance:NHM-r6U-t5m-nby@ds159856.mlab.com:59856/glance');
+mongoose.Promise = global.Promise;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -16,37 +17,69 @@ app.use(cors())
 var port = process.env.PORT || 8080;
 var router = express.Router();
 
+// Schema
+
+var Schema = mongoose.Schema;
+var historicalPricePointSchema = new Schema({
+  price: Number,
+  date: Number,
+  formattedDate: String,
+  newsItem: Schema.Types.Mixed
+});
+
+var currentPriceSchema = new Schema({
+  price: Number,
+  date: String
+})
+
+let CurrentPrice = mongoose.model('CurrentPrice', currentPriceSchema);
+
+
 // Sockets
 
 const wss = new WebSocket.Server({ port: 9090 });
 
 wss.on('connection', function connection(ws) {
-  ws.on('message', function incoming(message) {
-    console.log('received: %s', message);
+
+  Api.getLatestPrice().then(function(price) {
+    ws.send(JSON.stringify({currentPrice: price}));
   });
-
-  setTimeout(function(){
-    getCurrentEthPrice().then(function(result) {
-      if (result) {
-        console.log('sending new price...');
-        ws.send(JSON.stringify({currentPrice: result}));
-      }
+  setInterval(function() {
+    Api.getLatestPrice().then(function(price) {
+      ws.send(JSON.stringify({currentPrice: price}));
     });
-    getGasPrice().then(function(result) {
-      ws.send(JSON.stringify({gasPrice: result}));
-    })
-  },1000)
+  },7000)
 
-  // setInterval(function() {
-  //   getCurrentEthPrice().then(function(result) {
-  //     if (result) {
-  //       console.log('sending new price...');
-  //       ws.send(JSON.stringify({currentPrice: result}));
-  //     }
-  //   });
-  // },3000);
+  // getGasDetails().then(function(result) {
+  //   // if (result.price != lastGasPrice) {
+  //     ws.send(JSON.stringify({gasDetails: result}));
+  //   // }
+  // });
+  //
+  // getUncomfirmedTransactions().then(function(result) {
+  //   ws.send(JSON.stringify({uncomfirmedTransactions: result}));
+  // });
+  //
+  // getLastBlock().then(function(result) {
+  //   ws.send(JSON.stringify({latestBlock: result}));
+  // })
 
 });
+
+// First-party API functions
+
+class Api {
+  static async getLatestPrice() {
+    try {
+      let query = await CurrentPrice.findOne().sort({ field: 'asc', _id: -1 }).limit(1).select('price').exec();
+      return query.price;
+    }
+    catch(err) {
+      console.log(err);
+    }
+  }
+}
+
 
 // Third-party API functions
 
@@ -93,31 +126,64 @@ getCurrentEthPrice = function() {
       }
     })
     .catch(function (error) {
-      return error
+      // likely a timeout
     });
 }
 
-getGasPrice = async function() {
+setInterval(function() {
+  getCurrentEthPrice().then(function(result) {
+    CurrentPrice.create({price: result, date: new Date()}, function(err, pricePoints) {
+      if (err) {
+        console.log('failure saving current price data: ', err);
+      }
+    });
+  });
+}, 7000);
+
+// TODO implement try/catch for these async awaits
+getGasDetails = async function() {
   let response = await axios.post(parityEndpoint, {"method":"eth_gasPrice","params":[],"id":1,"jsonrpc":"2.0"})
   let result = await response;
   if (result.data) {
     parsedHex = parseInt(result.data.result, 16);
-    return parsedHex / 1000000000 // convert wei to gwei
-  } else {
-    // TODO test err
-    throw err;
+    let gwei = parsedHex / 1000000000 // convert from wei
+    lastGasPrice = gwei; // this is ephemeral, could be moved to DB if necessary
+    let health = determineHealth(gwei, 28, 60);
+    return {price: gwei, health: health};
   }
 }
 
-// Schema
+getLastBlock = async function () {
+  let response = await axios.post(parityEndpoint, {"method":"eth_getBlockByNumber","params":['latest', false],"id":1,"jsonrpc":"2.0"})
+  let result = await response;
+  if (result.data) {
+    parsedHex = parseInt(result.data.result.number, 16);
+    return parsedHex;
+  }
+}
 
-var Schema = mongoose.Schema;
-var historicalPricePointSchema = new Schema({
-  price: Number,
-  date: Number,
-  formattedDate: String,
-  newsItem: Schema.Types.Mixed
-});
+getUncomfirmedTransactions = async function () {
+  let response = await axios.get('https://api.blockcypher.com/v1/eth/main')
+  let result = await response;
+  if (result.data) {
+    let health = determineHealth(result.data.unconfirmed_count, 100000, 180000);
+    return {value: result.data.unconfirmed_count, health: health};
+  }
+}
+
+// Helper functions and variables
+
+let lastGasPrice = 0;
+
+const determineHealth = function(value, low, middle) {
+  if (value < low) {
+    return {'status':'healthy', 'value':'#73d13d'};
+  } else if (value > low && value < middle) {
+    return {'status':'moderately healthy', 'value':'#fff566'};
+  } else {
+    return {'status':'unhealthy', 'value':'#ff4d4f'};
+  }
+}
 
 saveHistoricalData = function() {
   getHistoricalPrice().then(function(result) {
