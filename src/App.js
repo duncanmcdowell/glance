@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import Header from './components/Header';
-import Hero from './components/Hero';
 import PriceChart from './components/PriceChart';
 import KeyStats from './components/KeyStats';
 import Details from './components/Details';

@@ -15,9 +15,15 @@ class PriceChart extends Component {
     };
   }
 
-  formatTooltip(tooltip, chart) {
+  formatTooltipBody(tooltip, chart) {
     if (parsedChartData[tooltip[0].index] && parsedChartData[tooltip[0].index].newsItem) {
-      return parsedChartData[tooltip[0].index].newsItem.title
+      return parsedChartData[tooltip[0].index].newsItem.title.substring(0, 70) + '...'
+    }
+  }
+
+  formatTooltipFooter(tooltip, chart) {
+    if (parsedChartData[tooltip[0].index] && parsedChartData[tooltip[0].index].newsItem) {
+      return 'click data point on chart to open article';
     }
   }
 
@@ -32,10 +38,6 @@ class PriceChart extends Component {
               let point = chart.getDatasetMeta(0).data[index];
               point.custom = point.custom || {};
               point.custom.radius = 12;
-              // console.log(point);
-              // point.custom.hoverRadius = 20;
-              // point.custom.hitRadius = 30;
-              // point.custom.hitRadius = 30  ;
             });
           }
         }
@@ -47,7 +49,6 @@ class PriceChart extends Component {
 
     // Chart Data
     Api.getHistoricalEthPrice().then(function(result){
-      console.log(result);
       parsedChartData = result;
       // build annotation layer
       indicies = parsedChartData.map(function(dataPoint, index) {
@@ -66,14 +67,12 @@ class PriceChart extends Component {
             fill: true,
             lineTension: 0.1,
             backgroundColor: '#44a8d7',
-            // borderColor: '#025fb7',
             borderCapStyle: 'butt',
             borderDash: [],
             borderDashOffset: 0.0,
             borderJoinStyle: 'miter',
             pointBorderColor: '#025fb7',
-            // pointBackgroundColor: '#fff',
-            pointBackgroundColor: ['red', 'green', 'blue', 'yellow'],
+            pointBackgroundColor: [],
             pointBorderWidth: 1,
             pointHoverRadius: 5,
             pointHoverBackgroundColor: '#44a8d7',
@@ -97,7 +96,7 @@ class PriceChart extends Component {
         return (
           <div className="PriceChart">
             <Row>
-              <Col className="current-price" span={16} offset={4}>
+              <Col className="details" span={16} offset={4}>
                 <div className='hero'>
                   <h2><span>Glance</span> displays real-time statistics from the Ethereum blockchain driven by multiple APIs.</h2>
                 </div>
@@ -114,7 +113,8 @@ class PriceChart extends Component {
                   options = {{
                     tooltips: {
                       callbacks: {
-                        afterBody: this.formatTooltip
+                        afterBody: this.formatTooltipBody,
+                        beforeFooter: this.formatTooltipFooter
                       }
                     },
                     onClick: function(event, arr) {

@@ -43,7 +43,7 @@ h1 {
 }
 
 .PriceChart {
-  .current-price {
+  .details {
     // since we're "dropping" this into the chart space, we need to ensure the z-index
     // is increased so that it will pop over the chart in the event that the two
     // spaces  collide.
@@ -139,7 +139,7 @@ h1 {
 // Media Queries
 
 @media (max-width: 800px) {
-  .PriceChart .current-price {
+  .PriceChart .details {
     margin-bottom: 0px !important;
   }
 }

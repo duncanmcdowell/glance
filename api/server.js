@@ -275,7 +275,7 @@ let websocketHelper = function(ws) {
 }
 
 saveHistoricalData = function() {
-  getHistoricalPrice().then(function(result) {
+  ExtApi.getHistoricalPrice().then(function(result) {
     let parsedChartData = [];
     result.forEach(function(day) {
       var formattedDate = moment.unix(day.date).format('MMMM D');
@@ -285,7 +285,7 @@ saveHistoricalData = function() {
                             'price':day.open
                           })
     });
-    getNewsItems().then(function (result) {
+    ExtApi.getNewsItems().then(function (result) {
       if (result && result.posts.length) {
         // map out the posts that are on the same day
         result.posts.forEach(function(post) {
