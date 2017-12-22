@@ -6,33 +6,9 @@
           border-radius: @radius;
 }
 
-.animated {
-  -webkit-animation-duration: 2s;
-  animation-duration: 2s;
-  -webkit-animation-fill-mode: both;
-  animation-fill-mode: both;
-}
-
-@-webkit-keyframes fadeIn {
-  0% {opacity: 0;}
-  100% {opacity: 1;}
-}
-
-@keyframes fadeIn {
-  0% {opacity: 0;}
-  100% {opacity: 1;}
-}
-
-.fadeIn {
-  -webkit-animation-name: fadeIn;
-  animation-name: fadeIn;
-}
-
-H1 {
+h1 {
   font-size: 72px;
 }
-
-// body{ margin:0 auto; max-width: 900px; }
 
 .App {
   text-align: center;
@@ -52,8 +28,9 @@ H1 {
   }
 }
 
-.Hero {
+.hero {
   margin-top: 100px;
+  max-width: 375px;
   text-align: left;
   h2 {
     color: lighten(@text-color, 20%);
@@ -131,5 +108,38 @@ H1 {
   color: lighten(@text-color, 20%);
   h2 {
     margin-top: 30px;
+  }
+}
+
+// animations
+
+.animated {
+  -webkit-animation-duration: 2s;
+  animation-duration: 2s;
+  -webkit-animation-fill-mode: both;
+  animation-fill-mode: both;
+}
+
+@-webkit-keyframes fade-in {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
+}
+
+@keyframes fade-in {
+  0% {opacity: 0;}
+  100% {opacity: 1;}
+}
+
+.fade-in {
+  -webkit-animation-name: fade-in;
+  animation-name: fade-in;
+}
+
+
+// Media Queries
+
+@media (max-width: 800px) {
+  .PriceChart .current-price {
+    margin-bottom: 0px !important;
   }
 }

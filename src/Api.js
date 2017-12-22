@@ -10,10 +10,9 @@ class Api {
         return response.data;
       })
       .catch(function (error) {
-        return error
+        console.log(error);
       });
   }
-
 }
 
 export default Api;

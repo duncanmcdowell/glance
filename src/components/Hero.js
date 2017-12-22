@@ -13,7 +13,7 @@ class Hero extends Component {
   render() {
     return (
       <Row>
-        <Col className="Hero" span={11} offset={4}>
+        <Col className="Hero" md={{span:10 ,offset:2}} >
           <h2><span>Glance</span> displays real-time statistics from the Ethereum blockchain driven by multiple APIs.</h2>
         </Col>
       </Row>

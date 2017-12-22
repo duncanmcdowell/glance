@@ -5,6 +5,7 @@ import PriceChart from './components/PriceChart';
 import KeyStats from './components/KeyStats';
 import Details from './components/Details';
 import update from 'immutability-helper';
+import {Row, Col} from 'antd';
 import './App.less';
 
 class App extends Component {
@@ -73,11 +74,18 @@ class App extends Component {
   render() {
     return (
       <div className="App">
-        <Header />
-        <Hero />
-        <PriceChart currentPrice={this.state.currentPrice} />
-        <KeyStats {...this.state.keyStats}  />
-        <Details />
+        <Row>
+          <Col span={24} lg={{span:18, offset:3}}>
+            <Header/>
+          </Col>
+          <Col span={24}>
+            <PriceChart currentPrice={this.state.currentPrice} />
+            <KeyStats {...this.state.keyStats}  />
+          </Col>
+          <Col span={24} md={{span:18, offset:3}}>
+            <Details />
+          </Col>
+        </Row>
       </div>
     );
   }

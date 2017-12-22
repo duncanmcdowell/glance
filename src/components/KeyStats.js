@@ -12,28 +12,30 @@ class KeyStats extends Component {
     return (
       <div className="KeyStats">
         <Row>
-          <Col span={8}>
-            <div>
-              <Card title="Gas Price">
-                <span className="stats animated fadeIn">{this.props.gasDetails.price}</span>
-                <div className="health-bar" style={{background: this.props.gasDetails.health.value}} title={this.props.gasDetails.health.status}> </div>
-              </Card>
-            </div>
-          </Col>
-          <Col span={8}>
-            <div>
-              <Card title="Latest Block">
-                <span className="stats animated fadeIn">{this.props.latestBlock}</span>
-              </Card>
-            </div>
-          </Col>
-          <Col span={8}>
-            <div>
-              <Card title="Uncomfirmed Txs">
-                <span className="stats animated fadeIn">{this.props.uncomfirmedTransactions.value}</span>
-                <div className="health-bar" style={{background: this.props.uncomfirmedTransactions.health.value}} title={this.props.uncomfirmedTransactions.health.status}></div>
-              </Card>
-            </div>
+          <Col md={{span: 18, offset: 3}}>
+            <Col span={8}>
+              <div>
+                <Card title="Gas Price">
+                  <span className="stats animated fade-in">{this.props.gasDetails.price}</span>
+                  <div className="health-bar" style={{background: this.props.gasDetails.health.value}} title={this.props.gasDetails.health.status}> </div>
+                </Card>
+              </div>
+            </Col>
+            <Col span={8}>
+              <div>
+                <Card title="Latest Block">
+                  <span className="stats animated fade-in">{this.props.latestBlock}</span>
+                </Card>
+              </div>
+            </Col>
+            <Col span={8}>
+              <div>
+                <Card title="Uncomfirmed Txs">
+                  <span className="stats animated fade-in">{this.props.uncomfirmedTransactions.value}</span>
+                  <div className="health-bar" style={{background: this.props.uncomfirmedTransactions.health.value}} title={this.props.uncomfirmedTransactions.health.status}></div>
+                </Card>
+              </div>
+            </Col>
           </Col>
         </Row>
       </div>

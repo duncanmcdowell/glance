@@ -1,13 +1,15 @@
-var express    = require('express');
-var app        = express();
-var bodyParser = require('body-parser');
-var mongoose   = require('mongoose');
-var axios      = require('axios');
-var moment     = require('moment');
-var cors       = require('cors')
-var WebSocket  = require('ws');
-const http     = require('http');
-mongoose.connect('mongodb://glance:NHM-r6U-t5m-nby@ds159856.mlab.com:59856/glance', {useMongoClient: true});
+let express    = require('express');
+let app        = express();
+let bodyParser = require('body-parser');
+let mongoose   = require('mongoose');
+let axios      = require('axios');
+let moment     = require('moment');
+let cors       = require('cors')
+let WebSocket  = require('ws');
+let http       = require('http');
+let dbCreds    = require('./db-creds')
+let connectionOptions = { keepAlive: 1, connectTimeoutMS: 30000, reconnectTries: 30, reconnectInterval: 5000, useMongoClient: true }
+mongoose.connect('mongodb://glance:'+ dbCreds.password +'@ds159856.mlab.com:59856/glance', connectionOptions);
 mongoose.Promise = global.Promise;
 
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -54,7 +56,6 @@ let LastBlock = mongoose.model('LastBlock', lastBlockSchema);
 let UncomfirmedTransactions = mongoose.model('UncomfirmedTransactions', uncomfirmedTransactionsSchema);
 let GasPrice = mongoose.model('GasPrice', gasPriceSchema);
 
-
 // Sockets and polling functions
 
 const wss = new WebSocket.Server({ port: 9090 });
@@ -95,7 +96,11 @@ setInterval(function() {
       }
     });
   });
+}, 10000);
 
+// Update DB every 25 seconds
+
+setInterval(function() {
   ExtApi.getUncomfirmedTransactions().then(function(result) {
     UncomfirmedTransactions.create({value: result.value, health: result.health, date: new Date()}, function(err, block) {
       if (err) {
@@ -103,8 +108,7 @@ setInterval(function() {
       }
     });
   });
-
-}, 10000);
+},25000)
 
 // First-party API functions
 
@@ -171,54 +175,63 @@ class ExtApi {
   }
 
   static async getNewsItems() {
-    let response = await axios.get('http://webhose.io/filterWebContent?token=8b783afd-c348-436d-8913-1e1450d86f00&format=json&ts=1511830330016&sort=crawled&q=ethereum%20social.facebook.shares%3A%3E5000')
-    let result = await response;
     try {
+      let response = await axios.get('http://webhose.io/filterWebContent?token=8b783afd-c348-436d-8913-1e1450d86f00&format=json&ts=1511830330016&sort=crawled&q=ethereum%20social.facebook.shares%3A%3E5000')
+      let result = await response;
       return result.data;
     }
     catch (err) {
-      // implement sentry
+      console.log('error is: ', err.code);
     }
   }
 
   static async getCurrentEthPrice() {
-    let response = await axios.get('https://poloniex.com/public', {params: {command:'returnTicker'}})
-    let result = await response;
     try {
+      let response = await axios.get('https://poloniex.com/public', {params: {command:'returnTicker'}})
+      let result = await response;
       return parseFloat(result.data['USDT_ETH'].last,10).toFixed(2);
     }
-    catch(err) {
-      // implement sentry
+    catch (err) {
+      console.log('error is: ', err.code);
     }
   }
 
   static async getGasDetails() {
-    let response = await axios.post(parityEndpoint, {"method":"eth_gasPrice","params":[],"id":1,"jsonrpc":"2.0"})
-    let result = await response;
-    if (result.data) {
+    try {
+      let response = await axios.post(parityEndpoint, {"method":"eth_gasPrice","params":[],"id":1,"jsonrpc":"2.0"})
+      let result = await response;
       let parsedHex = parseInt(result.data.result, 16);
       let gwei = parsedHex / 1000000000 // convert from wei
       let lastGasPrice = gwei; // this is ephemeral, could be moved to DB if necessary
       let health = determineHealth(gwei, 28, 60);
       return {price: gwei, health: health};
     }
+    catch (err) {
+      console.log('error is: ', err.code);
+    }
   }
 
   static async getLastBlock() {
-    let response = await axios.post(parityEndpoint, {"method":"eth_getBlockByNumber","params":['latest', false],"id":1,"jsonrpc":"2.0"})
-    let result = await response;
-    if (result.data) {
+    try {
+      let response = await axios.post(parityEndpoint, {"method":"eth_getBlockByNumber","params":['latest', false],"id":1,"jsonrpc":"2.0"})
+      let result = await response;
       let parsedHex = parseInt(result.data.result.number, 16);
       return parsedHex;
+    }
+    catch (err) {
+      console.log('error is: ', err.code);
     }
   }
 
   static async getUncomfirmedTransactions() {
-    let response = await axios.get('https://api.blockcypher.com/v1/eth/main')
-    let result = await response;
-    if (result.data) {
+    try {
+      let response = await axios.get('https://api.blockcypher.com/v1/eth/main')
+      let result = await response;
       let health = determineHealth(result.data.unconfirmed_count, 100000, 180000);
       return {value: result.data.unconfirmed_count, health: health};
+    }
+    catch(err) {
+      console.log('error is: ', err.code);
     }
   }
 }
@@ -240,16 +253,24 @@ let determineHealth = function(value, low, middle) {
 
 let websocketHelper = function(ws) {
   Api.getLatestPrice().then(function(price) {
-    ws.send(JSON.stringify({currentPrice: price}));
+    ws.send(JSON.stringify({currentPrice: price}), function(err) {
+      // console.log(err);
+    });
   });
   Api.getLastBlock().then(function(block) {
-    ws.send(JSON.stringify({latestBlock: block}));
+    ws.send(JSON.stringify({latestBlock: block}), function(err) {
+      // console.log(err);
+    });
   });
   Api.getGasPrice().then(function(gasDetails) {
-    ws.send(JSON.stringify({gasDetails: gasDetails}));
+    ws.send(JSON.stringify({gasDetails: gasDetails}), function(err) {
+      // console.log(err);
+    });
   });
   Api.getUncomfirmedTransactions().then(function(uncomfirmedTransactions) {
-    ws.send(JSON.stringify({uncomfirmedTransactions: uncomfirmedTransactions}));
+    ws.send(JSON.stringify({uncomfirmedTransactions: uncomfirmedTransactions}), function(err) {
+      // console.log(err);
+    });
   });
 }
 

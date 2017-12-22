@@ -47,17 +47,15 @@ class PriceChart extends Component {
 
     // Chart Data
     Api.getHistoricalEthPrice().then(function(result){
+      console.log(result);
       parsedChartData = result;
       // build annotation layer
       indicies = parsedChartData.map(function(dataPoint, index) {
-        if (dataPoint.newsItem) {
-          return index;
-        }
+        return dataPoint.newsItem ? index : undefined;
       }).filter(function(x) {
         return typeof x !== 'undefined';
       });
 
-      // vm.setState({parsedChartData: parsedChartData});
       vm.setState({chartParameters: {
         labels: parsedChartData.map(function(datapoint) {
           return datapoint.formattedDate;
@@ -100,8 +98,11 @@ class PriceChart extends Component {
           <div className="PriceChart">
             <Row>
               <Col className="current-price" span={16} offset={4}>
+                <div className='hero'>
+                  <h2><span>Glance</span> displays real-time statistics from the Ethereum blockchain driven by multiple APIs.</h2>
+                </div>
                 <div>
-                  <h1><span className="animated fadeIn">{this.props.currentPrice}</span> <span> ETH/USD </span></h1>
+                  <h1><span className="animated fade-in">{this.props.currentPrice}</span> <span> ETH/USD </span></h1>
                   <p>price updates every five seconds.</p>
                 </div>
               </Col>
@@ -117,10 +118,11 @@ class PriceChart extends Component {
                       }
                     },
                     onClick: function(event, arr) {
-                      console.log(arr);
-                      let index = arr[0]['_index'];
-                      if (parsedChartData[index] && parsedChartData[index].newsItem) {
-                        window.open(parsedChartData[index].newsItem.url, '_blank');
+                      if (arr[0] && arr[0]['_index']) {
+                        let index = arr[0]['_index'];
+                        if (parsedChartData[index] && parsedChartData[index].newsItem) {
+                          window.open(parsedChartData[index].newsItem.url, '_blank');
+                        }
                       }
                     },
                     legend:false,
